@@ -1,4 +1,11 @@
 {
-  "image_url": "https://cdn.socionity.uk/img/b7152209-b12a-4154-a1bf-12518bd74833-bd865a37.png",
-  "welcome_msg": "WELCOME TO ROWX GENERATOR PRO V2.4"
+  "welcome_msg": "WELCOME TO ROWX GENERATOR PRO V2.4",
+  "image_url": [
+    "https://cdn.socionity.uk/img/b7152209-b12a-4154-a1bf-12518bd74833-bd865a37.png",
+    "https://cdn.socionity.uk/img/437540e5-371d-420b-a289-d9c217091bf4-bda958d2.png",
+    "https://cdn.socionity.uk/img/136e757f-ed57-4604-ac85-5342f4a2d431-bda9ab27.png",
+    "https://cdn.socionity.uk/img/3dab8140-62c9-448a-850f-9c1935ed5f41-bdaa20e9.png",
+    "https://cdn.socionity.uk/img/1d83d20b-2b40-49b2-b82f-df95fa11e677-bdaa667c.png",
+    "https://cdn.socionity.uk/img/cf5a40e6-110e-4b74-812e-72ece3bc22f9-bdaad0f6.png",
+    "https://cdn.socionity.uk/img/0cbb90cc-8b7a-4df4-8491-e113ce6e0c5b-bdab41f3.png"
 }
